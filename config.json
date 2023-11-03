@@ -1,0 +1,19 @@
+{
+  "BaseDir": "C:\\Users\\F7Q6\\source\\repos\\RONew\\",
+  "replacements": [
+    {
+      "tag": "URLeKey",
+      "repeat": "#",
+      "replacementValue": "test",
+      "path": "PlanningAndSchedulingInputs\\PlanningAndSchedulingInputs.UI",
+      "fileName": "appsettings.Development.json"
+    },
+    {
+      "tag": "ClientSecret",
+      "repeat": "#",
+      "replacementValue": "test2",
+      "path": "PlanningAndSchedulingInputs\\PlanningAndSchedulingInputs.WebApi",
+      "fileName": "appsettings.json"
+    }
+	]
+	}
