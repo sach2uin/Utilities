@@ -1,0 +1,77 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
+
+try
+{
+    // Read the configuration file
+    string configFile = "config.json";
+    string configContent = File.ReadAllText(configFile);
+    var config = JObject.Parse(configContent);
+
+    // Process each replacement specification
+    var replacements = config["replacements"];
+    string baseDir = config["BaseDir"].ToString();
+    foreach (var replacement in replacements)
+    {
+        string tag = replacement["tag"].ToString();
+        string repeat = replacement["repeat"].ToString();
+        string replacementValue = replacement["replacementValue"].ToString();
+        string path = replacement["path"].ToString();
+        string fileName = replacement["fileName"].ToString();
+        
+        // Load the target JSON file
+        string targetFile = Path.Combine(baseDir, path, fileName);
+        string targetContent = File.ReadAllText(targetFile);
+        var targetJson = JObject.Parse(targetContent);
+
+        // Find and replace the values based on the tag and repeat pattern recursively
+        ReplaceValues(targetJson, tag, repeat, replacementValue);
+
+        // Save the updated JSON file
+        File.WriteAllText(targetFile, targetJson.ToString());
+    Console.WriteLine($"File Parsed:{path+fileName}");
+
+    }
+
+    Console.WriteLine("Replacements completed.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error: {ex.Message}");
+}
+    
+
+    static void ReplaceValues(JToken json, string tag, string repeat, string replacementValue)
+{
+    if (json is JObject obj)
+    {
+        // Handle objects
+        foreach (var property in obj.Properties().ToList())
+        {
+            if (property.Name == tag)
+            {
+                
+                // Replace the value
+                property.Value = JToken.FromObject(Regex.Replace(property.Value.ToString(),repeat+"+", replacementValue));
+                Console.WriteLine($"Repalced Value:{tag} with {replacementValue}");
+            }
+            else
+            {
+                // Recursively search for the tag in property values
+                ReplaceValues(property.Value, tag, repeat, replacementValue);
+            }
+        }
+    }
+    else if (json is JArray array)
+    {
+        // Handle arrays
+        for (int i = 0; i < array.Count; i++)
+        {
+            ReplaceValues(array[i], tag, repeat, replacementValue);
+        }
+    }
+}
+
